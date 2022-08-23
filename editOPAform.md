@@ -5,7 +5,7 @@ As a user who has previously submitted the OPA form I want to be able to edit th
 * There will be new PATCH endpoint to update user details
 
 ```
-GET -> /v1/users/{user-id}/mortgages/user-inputs
+GET -> /api/v1/users/${userId}/mortgages/pre-approval/user-inputs
 PATCH -> /v1/users/{user-id}/mortgages/pre-approval
 
 ```
