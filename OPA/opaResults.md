@@ -4,40 +4,47 @@ As a user, I want to learn whether I am ready to apply for a mortgage or not so 
 As a user, I want to learn why I am not ready to apply for a mortgage or not so that I can work on those circumstances.
 
 ## Task Scope / Description
-* Creating url for new page: daft-mortgages/online-mortgage-application/results
+* Create page daft-mortgages/online-mortgage-application/results
 * Creating the layout
+* Implement logic to show content based on user results (Green, yellow, red flag)
 
 ## Location
 pages/daft-mortgages/online-mortgage-application/results/index.tsx
 components/Forms/OnlineMortgageApplication/OnlinemortgageApplicationsResultsPage.tsx
+components/Forms/OnlineMortgageApplication/components/ResultHeading.tsx
+components/OnlineMortgageApplicationChecklist/OnlineMortgageAppChecklistConfig
 
-## Data for the Checklist Component
+### Flags
+* Results based on Flags returned from user Results
+* If any RED Flags user is RED (Not ready to apply)
+* If no red and any yellow user is YELLOW (Can Continue)
+* If no red or yellow user is GREEN (Can Continue)
 
-returned from components/OnlineMortgageApplicationChecklist/OnlineMortgageAppChecklistConfig
-### This logic may change in the future
+### Checklist Data
+- Data coming from components/OnlineMortgageApplicationChecklist/OnlineMortgageAppChecklistConfig
+* hasOpaChecklist - Green or Yellow user
+* noOpaChecklist - Has no OPA form completed or is logged out (Logged out users will only reach Entry Page)
+* warning - User Results contains Red Flags
 
-* loggedInuser - step 1 is green, checkmark icon, step2 is blue
-* loggedoutuser - step 1 is blue
-* warning - step 1 is red, icon is exclamation mark (user who does not meet criteria to apply for mortgage)
+## Results
+Coming from endpoint 
+```tsx
+`api/v1/users/${userId}/mortgages/pre-approval/summary`,
 
-## Sample data
+```
 
-* imported from components/OnlineMortgageApplicationChecklist/OnlineMortgageApplicationResultsConfig
-* Mocks three different types of results
-* Red Flag (Not eligible to apply eg no work permit / low income etc)
-* Yellow Flag (Can apply but with conditions - eg need to wait until pass probation)
-* Green Flag ( Can apply, no red or green flag warnings)
+Data requested in pages/daft-mortgages/online-mortgage-application/results/index.tsx
+```tsx
+await AccountsAPI.getPreApprovalResults(token, userToken);
 
-## Current Logic
-### To view possible results change currentFlagObject to Green/yellow/red on line 38
-* Checks the status of the user application (red, yellow or green)
-* Displays warnings if yellow or red
-* No warnings if Green
-* Green and yellow may continue
-* Red no option to continue
+```
 
-## Further action
-* Needs to be connected to backend instead of sample data
+
+
+
+
+
+
 
 
 
