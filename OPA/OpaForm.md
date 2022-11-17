@@ -21,7 +21,7 @@ User should be able to fill in Online Pre Application Form (OPA) to check if the
 
 ## Overview
 * Re-using the Buying Budget form
-* Pass opaFlowConfig file as props to BuyingBudgetForm (opaFlowConfig holds all the q's to be in the form)
+* Passing either opaFlowConfigJoint or opaFlowConfigSingle to BuyingBudgetForm (opaFlowConfig holds all the q's to be in the form)
 * Pass token to BBForm to identify if user is signed in.
 * Pass name as ‘preApproval’ so BBF can identify type of form.
 
