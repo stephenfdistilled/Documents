@@ -1,6 +1,5 @@
 ## Story
-User should be able to fill in Online Pre Application Form (OPA) to check if they ready to apply for a mortgage.
-
+A User should be able to create a new Online Pre Application Form (OPA) for the first time.
 
 ## Task Scope & Description
 * To create required pages and input fields for OPA form.
@@ -8,10 +7,8 @@ User should be able to fill in Online Pre Application Form (OPA) to check if the
 ```
 /daft-mortgages/online-pre-application
 ```
-
-
 ## Create Form Inputs
-* Citizenship details
+* Citizenship details (Joint Or Single Applications)
 * Savings
 * Your Future Home
 * Final Q's
@@ -22,7 +19,7 @@ User should be able to fill in Online Pre Application Form (OPA) to check if the
 ## Overview
 * Re-using the Buying Budget form
 * Passing either opaFlowConfigJoint or opaFlowConfigSingle to BuyingBudgetForm (opaFlowConfig holds all the q's to be in the form)
-* Pass token to BBForm to identify if user is signed in.
+* Pass auth token to BBForm to identify if user is signed in.
 * Pass name as ‘preApproval’ so BBF can identify type of form.
 
 ###### pages/daft-mortgages/index.tsx	
@@ -35,21 +32,19 @@ User should be able to fill in Online Pre Application Form (OPA) to check if the
 ```
 
 ## File Locations
-
 * pages/daft-mortgages/index.tsx (index page for OPA form)
 * components/Forms/BuyingBudgetForm/BuyingBudgetForm.tsx (BB Form)
 * components/Forms/configs/OnlinePreApplication/PreAppliction (Config data to populate form)
-* api/index.ts (All the Daft forms)
+* api/index.ts (Endpoint is located in this file)
 
 ### BB Form
 expects:
 
 * formName: string;  ('preApplication' or 'buyingBudget')
-* pages (opaFlowConfig or buyingBudgetFormConfig) 
+* pages (opaFlowConfigJoint or opaFlowConfigSingle) or buyingBudgetFormConfig) 
 
 ###### optional
 * Inputs (The questions user will be asked)
-* edit (if form is an edit to an existing form)
 * token (string that holds user information)
 
 as above:
@@ -71,7 +66,7 @@ as above:
 import { Forms } from 'api';
 ```
 
-* Generic form will call either ('preApplication' or 'buyingBudget')
+* Generic form will call the endpoint - either ('preApplication' or 'buyingBudget')
 
 ```
  <GenericForm
@@ -79,40 +74,12 @@ import { Forms } from 'api';
           initialValues={initialValues}
           onSubmitCallback={onSubmitCallback}
           formApiCall={
-            formName === 'preApproval' ? onSubmit : Forms.buyingBudget
+             formApiCall={formName === 'preApproval' ? submitOPA : submitBB}
           }
-          redirectBackTo={'/daft-mortgages/buying-budget'}
-          dataTestId={`${formName}-form`}
-          
           .......
 ```
 
-* if 'preApplication' onSubmit function called and calls the OPA form
-* formSubmission type matches the data passed in from opaFlowConfig
-
-```
-type FormSubmission = {
-  TBC: string;
-  estimatedPurchasePrice: string;
-  firstApplicantCitizenship: string;
-  firstApplicantTaxResident: string;
-  firstApplicantVisaType?: string;
-  hasAppliedForMortgage: string;
-  hasAppliedHelpToBuy: string;
-  hasArrearsHistory: string;
-  hasDebtIssuesHistory: string;
-  hasEvidentRentRecords?: string;
-  hasEvidentSavingsRecords: string;
-  hasFoundAProperty: string;
-  hasPotentialRepaymentIssues: string;
-  isRenting: string;
-  mortgageAmount?: string;
-  mortgageApplicationStatus: string[];
-  secondApplicantCitizenship: string;
-  secondApplicantTaxResident: string;
-  secondApplicantVisaType: string[];
-};
-```
+* Function requires inputs, auth token and user-id
 
 ```
   const onSubmit = async (formSubmission: FormSubmission) => {
