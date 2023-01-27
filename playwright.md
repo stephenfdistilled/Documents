@@ -3,7 +3,7 @@
 - Demo file is located at playwright / integration / onlinePreApplicationEdit.spec.ts
 - Playwright settings are in the playwright.config.ts file
 - Removed cy:open from package.json npm run test:integration command
-```
+
 
 ## Advantages of Playwright
 
