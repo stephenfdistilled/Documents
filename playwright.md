@@ -37,32 +37,118 @@ npx playwright show-report
 - Can save a trace when you run a test with ‘—trace on’ command
 - Capture all the information to investigate the test failure. Playwright trace contains test execution screencast, live DOM snapshots, action explorer, test source etc
 
-## Network Events / mocking Api calls
+### Multiple browsers
 
-Can work with network requests and api calls with page.route()
-
-However there does not seem to be an easy way to mock API response that is called in getServerSideProps.
-
-When trying to mock a GET request for a users Online Pre Application page.route is used to wait for the relevant endpoint to be called.
-
-In this case the endpoint is  api/v1/users/1619756/mortgages/pre-approval/user-inputs.
-
-We want to do something like this 
+- Can specify browsers in config file
 
 ```tsx
-//Mountebank server is running on port 5001
-await page.route(
-      'http://localhost:5001/api/v1/users/1619756/mortgages/pre-approval/user-inputs',
-      async (route) => {
-        const response = await route.fetch(); //Save the OPA inputs 
-        const json = await response.json();
-        await route.fulfill({ response, json }); //Route is never fulfilled as the endpoint has been called on the server which the test cannot see.
-      },
-    );
+// playwright.config.ts
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+  ],
+});
 ```
 
-I’m looking at Mountebank at the moment to get it to work with Playwright
+Or choose from command line
 
-When navigating to [http://localhost:5001/api/v1/users/1619756/mortgages/pre-approval/user-inputs](http://localhost:5001/api/v1/users/1619756/mortgages/pre-approval/user-inputs) I can see the inputs i need.
+```bash
+npx playwright test --project=firefox
+```
 
-But in the Playwright tests no data is returned.
+### Automatic Test Generation
+
+[https://playwright.dev/docs/codegen](https://playwright.dev/docs/codegen)
+
+- Opens 2 windows, you interact with the targeted page on 1, Playwright writes the tests on the other.
+- Can specify viewport to test different device sizes
+- Emulate a device eg iPhone 11
+- Emulate Geolocation, language, timezone
+
+```bash
+npx playwright codegen http://localhost:3000/daft-mortgages/online-pre-application/edit
+```
+
+### Network
+
+[https://playwright.dev/docs/network](https://playwright.dev/docs/network)
+
+Can block certain file types on requests, eg block images - could improve performance of tests?
+
+```bash
+// example.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('loads page without images', async ({ page }) => {
+  // Block png and jpeg images.
+  await page.route(/(png|jpeg)$/, route => route.abort());
+
+  await page.goto('https://playwright.dev');
+  // ... test goes here
+});
+```
+
+### Debugging
+
+[https://playwright.dev/docs/debug](https://playwright.dev/docs/debug)
+
+- Record video replay of test, trace of the steps involved in test, screenshots
+
+```tsx
+import { defineConfig } from '@playwright/test';
+export default defineConfig({
+  use: {
+    video: 'on-first-retry',
+		screenshot: 'only-on-failure',
+		trace: 'retain-on-failure',
+  },
+});
+```
+
+- VS Code - debugger
+- Debugger that can be launched from command line
+
+```tsx
+npx playwright test --debug
+```
+
+### P**arallel** testing
+
+[https://playwright.dev/docs/test-parallel](https://playwright.dev/docs/test-parallel)
+
+- Test run in parallel by default
+- Limit max number of test workers in config file or comman line
+- 
+
+```tsx
+npx playwright test --workers 4
+```
+
+```tsx
+// playwright.config.ts
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  // Limit the number of workers on CI, use default locally
+  workers: process.env.CI ? 2 : undefined,
+});
+```
+
+### Enforce single worker
+
+```tsx
+npx playwright test --workers=1
+```
